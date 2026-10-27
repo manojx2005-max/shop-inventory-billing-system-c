@@ -1,0 +1,336 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 100
+
+typedef struct {
+    int id;
+    char title[80];
+    char author[60];
+    int copies;
+    int issued;
+} Book;
+
+typedef union {
+    int number;
+    float amount;
+    char text[32];
+} DemoUnion;
+
+int global_library_code = 2026;
+
+int ri(const char *p) {
+    int x;
+    printf("%s", p);
+    while (scanf("%d", &x) != 1) {
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF) {}
+        printf("Enter integer: ");
+    }
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+    return x;
+}
+
+void rt(const char *p, char *s, size_t n) {
+    printf("%s", p);
+    if (fgets(s, (int)n, stdin))
+        s[strcspn(s, "\n")] = '\0';
+}
+
+void lower(char *s) {
+    for (int i = 0; s[i]; i++)
+        s[i] = (char)tolower((unsigned char)s[i]);
+}
+
+void rev(char *s) {
+    size_t i = 0, j = strlen(s);
+    if (!j) return;
+    --j;
+    while (i < j) {
+        char t = s[i];
+        s[i++] = s[j];
+        s[j--] = t;
+    }
+}
+
+long long fact(int n) {
+    return n <= 1 ? 1 : n * fact(n - 1);
+}
+
+void fib(int n) {
+    unsigned long long a = 0, b = 1;
+    for (int i = 0; i < n; i++) {
+        printf("%llu%s", a, i == n - 1 ? "\n" : " ");
+        unsigned long long t = a + b;
+        a = b;
+        b = t;
+    }
+}
+
+int find(Book b[], int n, int id) {
+    for (int i = 0; i < n; i++)
+        if (b[i].id == id) return i;
+    return -1;
+}
+
+void list(Book b[], int n) {
+    if (!n) {
+        puts("No books yet.");
+        return;
+    }
+
+    printf("%-6s %-28s %-20s %8s %8s\n",
+           "ID", "TITLE", "AUTHOR", "COPIES", "ISSUED");
+
+    for (int i = 0; i < n; i++)
+        printf("%-6d %-28.28s %-20.20s %8d %8d\n",
+               b[i].id, b[i].title, b[i].author,
+               b[i].copies, b[i].issued);
+}
+
+void add(Book b[], int *n) {
+    if (*n >= MAX) {
+        puts("Full.");
+        return;
+    }
+
+    Book x;
+    x.id = ri("Book ID: ");
+
+    if (find(b, *n, x.id) >= 0) {
+        puts("Duplicate ID.");
+        return;
+    }
+
+    rt("Title: ", x.title, sizeof x.title);
+    rt("Author: ", x.author, sizeof x.author);
+
+    x.copies = ri("Copies: ");
+    if (x.copies < 0) x.copies = 0;
+
+    x.issued = 0;
+    b[(*n)++] = x;
+    puts("Added.");
+}
+
+void issue(Book b[], int n) {
+    int i = find(b, n, ri("Book ID: "));
+
+    if (i < 0)
+        puts("Not found.");
+    else if (b[i].issued >= b[i].copies)
+        puts("No copies available.");
+    else {
+        b[i].issued++;
+        puts("Issued.");
+    }
+}
+
+void ret(Book b[], int n) {
+    int i = find(b, n, ri("Book ID: "));
+
+    if (i < 0)
+        puts("Not found.");
+    else if (!b[i].issued)
+        puts("No issued copy.");
+    else {
+        b[i].issued--;
+        puts("Returned.");
+    }
+}
+
+void alg(void) {
+    int c = ri("1 Factorial 2 Fibonacci 3 Digit sum 4 Complexity notes: ");
+
+    if (c == 1) {
+        int n = ri("n (0-20): ");
+        if (n >= 0 && n <= 20)
+            printf("%d! = %lld\n", n, fact(n));
+        else
+            puts("Use 0-20.");
+    }
+    else if (c == 2) {
+        int n = ri("Terms (1-90): ");
+        if (n > 0 && n <= 90)
+            fib(n);
+        else
+            puts("Use 1-90.");
+    }
+    else if (c == 3) {
+        int n = ri("Integer: "), s = 0;
+        if (n < 0) n = -n;
+        while (n) {
+            s += n % 10;
+            n /= 10;
+        }
+        printf("Digit sum = %d\n", s);
+    }
+    else if (c == 4) {
+        puts("Linear search O(n); bubble sort O(n^2); factorial O(n).");
+        puts("Algorithm: finite clear steps.");
+        puts("Flowchart: Start -> Input -> Process -> Output -> End.");
+    }
+}
+
+void basics(void) {
+    float sum = 0;
+
+    for (int i = 1; i <= 5; i++) {
+        char p[40];
+        snprintf(p, sizeof p, "Mark %d (0-100): ", i);
+
+        float m;
+        printf("%s", p);
+        if (scanf("%f", &m) != 1) m = 0;
+
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF) {}
+
+        if (m < 0) m = 0;
+        if (m > 100) m = 100;
+        sum += m;
+    }
+
+    float avg = sum / 5;
+    char grade = avg >= 90 ? 'A' :
+                 avg >= 80 ? 'B' :
+                 avg >= 70 ? 'C' :
+                 avg >= 50 ? 'D' : 'F';
+
+    printf("Total = %.1f\nAverage = %.1f\nGrade = %c\n",
+           sum, avg, grade);
+}
+
+void arrays_strings(void) {
+    int n = ri("Array size (1-100): ");
+    if (n < 1 || n > 100) return;
+
+    int a[MAX], sum = 0, mn = 0, mx = 0;
+
+    for (int i = 0; i < n; i++) {
+        char p[32];
+        snprintf(p, sizeof p, "Value %d: ", i + 1);
+        a[i] = ri(p);
+        sum += a[i];
+
+        if (i == 0 || a[i] < mn) mn = a[i];
+        if (i == 0 || a[i] > mx) mx = a[i];
+    }
+
+    printf("Sum = %d, Min = %d, Max = %d\n", sum, mn, mx);
+
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (a[j] > a[j + 1]) {
+                int t = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = t;
+            }
+
+    printf("Sorted: ");
+    for (int i = 0; i < n; i++)
+        printf("%d%s", a[i], i == n - 1 ? "\n" : " ");
+
+    char s[160], r[160];
+    rt("String: ", s, sizeof s);
+
+    printf("Length = %zu\n", strlen(s));
+    strcpy(r, s);
+    rev(r);
+    printf("Reverse = %s\n", r);
+
+    lower(s);
+    printf("Lowercase = %s\n", s);
+}
+
+void pointers(void) {
+    int x = ri("Number of copies: ");
+    int *p = &x;
+
+    printf("Value = %d\nAddress = %p\nDereference = %d\n",
+           x, (void *)p, *p);
+
+    (*p)++;
+    printf("After pointer update = %d\n", x);
+
+    char *topics[] = {"arrays", "strings", "functions", "pointers"};
+    for (int i = 0; i < 4; i++)
+        puts(topics[i]);
+
+    puts("C passes arguments by value; passing an address permits changes to the original object.");
+}
+
+void structs(void) {
+    Book b = {1, "C Programming", "Sample Author", 4, 1};
+
+    printf("Structure: %d %s copies=%d\n",
+           b.id, b.title, b.copies);
+
+    DemoUnion u;
+    u.number = 42;
+    printf("Union number = %d, size = %zu\n",
+           u.number, sizeof u);
+
+    static int calls = 0;
+    calls++;
+
+    auto int local = 5;
+    register int fast = 7;
+    extern int global_library_code;
+
+    printf("static=%d auto=%d register=%d extern=%d\n",
+           calls, local, fast, global_library_code);
+}
+
+int main(void) {
+    Book b[MAX];
+    int n = 0, c;
+
+    puts("LIBRARY MANAGEMENT TOOLKIT");
+
+    do {
+        puts("\n1 Algorithms"
+             "\n2 Student grade demo"
+             "\n3 Arrays/strings"
+             "\n4 Functions/pointers"
+             "\n5 Structures/unions/storage classes"
+             "\n6 Add book"
+             "\n7 List books"
+             "\n8 Issue book"
+             "\n9 Return book"
+             "\n10 Sort by title"
+             "\n0 Exit");
+
+        c = ri("Choose: ");
+
+        switch (c) {
+            case 1: alg(); break;
+            case 2: basics(); break;
+            case 3: arrays_strings(); break;
+            case 4: pointers(); break;
+            case 5: structs(); break;
+            case 6: add(b, &n); break;
+            case 7: list(b, n); break;
+            case 8: issue(b, n); break;
+            case 9: ret(b, n); break;
+
+            case 10:
+                for (int i = 0; i < n - 1; i++)
+                    for (int j = 0; j < n - i - 1; j++)
+                        if (strcmp(b[j].title, b[j + 1].title) > 0) {
+                            Book t = b[j];
+                            b[j] = b[j + 1];
+                            b[j + 1] = t;
+                        }
+                list(b, n);
+                break;
+
+            case 0: puts("Goodbye."); break;
+            default: puts("Invalid choice.");
+        }
+    } while (c != 0);
+
+    return 0;
+}
