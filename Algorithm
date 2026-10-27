@@ -1,0 +1,14 @@
+Algorithm: Library Management System
+
+1. Start the program.
+2. Declare a structure to store book ID, title, author, total copies, and issued copies.
+3. Display the main menu.
+4. Read the user’s choice.
+5. If the user selects Add Book, read book details and store them in the array.
+6. If the user selects Display Books, display all stored book records.
+7. If the user selects Issue Book, search for the book ID and check availability. If a copy is available, increase the issued count.
+8. If the user selects Return Book, search for the ID and decrease the issued count if a copy was issued.
+9. If the user selects Sort Books, arrange the records alphabetically by title using bubble sort.
+10. Execute the selected algorithm or C programming demonstration when requested.
+11. Repeat the menu until the user selects Exit.
+12. Stop the program.
